@@ -15,4 +15,4 @@ En XAMPP sería dentro de la carpeta 'htdocs'.
 # Notas
 Si deseas ver como funciona, necesitas clonar otros dos repositorios para tener el proyecto completo:
 * Oximetro App Movil => https://github.com/Adro312/Oximetro-App-Movil
-* Oximetro ESP32 => 
+* Oximetro ESP32 => https://github.com/Adro312/Oximetro-ESP32
