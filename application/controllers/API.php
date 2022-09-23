@@ -18,8 +18,33 @@ class API extends RestController {
       echo $status;
     }
 
-    function getAllData_get() {
-      $data = $this->db->get('status_oximetro')->result();
+    function changeStatus_get() 
+    {
+      $this->db->where('id', 1);
+      $resp = $this->db->update('status_oximetro', array('status_oximetro' => 1));
+      $msg = $resp ? "OK" : "ERROR"; 
+      $array = array(
+        "status" => $msg
+      );
+      echo json_encode($array);
+    }
+
+    function getRegister_get() 
+    {
+      $query_id = $this->db->where_in('id', 1);
+      $query_id = $this->db->get('ultimo_registro');
+      $last_id = $query_id->row()->ultimo_registro;
+
+      $query_get = $this->db->where_in('id', $last_id);
+      $query_get = $this->db->get('registros');
+      $datos = $query_get->result();
+
+      echo json_encode($datos);
+    }
+
+    function getAllData_get() 
+    {
+      $data = $this->db->get('registros')->result();
       echo json_encode($data);
     }
 
@@ -41,6 +66,11 @@ class API extends RestController {
         // Insertamos los datos en la tabla
         $registro = $this->db->insert("registros", $data);
 
+        // Actualizamos el ultimo Id registrado
+        $last_id = $this->db->insert_id();
+        $this->db->where('id', 1);
+        $this->db->update('ultimo_registro', array('ultimo_registro' => $last_id));
+
         // Cambiamos el estado del oximetro para que ya no registre mas datos
         $this->db->where('id', 1);
         $this->db->update('status_oximetro', array('status_oximetro' => 0));
@@ -49,9 +79,17 @@ class API extends RestController {
       }
 
       if ($registro) {
-        echo "Se guardo correctamente!";
+        $repsuesta = array(
+          "status" => 1,
+          "msg" => "Se guardo correctamente!"
+        );
+        echo json_encode($repsuesta);
       } else {
-        echo "Error al guardar los datos";
+        $repsuesta = array(
+          "status" => 0,
+          "msg" => "Error al guardar los datos"
+        );
+        echo json_encode($repsuesta);
       }
     }
 
