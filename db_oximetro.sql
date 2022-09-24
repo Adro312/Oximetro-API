@@ -1,30 +1,27 @@
 CREATE DATABASE oximetro;
 USE oximetro;
 
-CREATE TABLE registros (
-  id INT NOT NULL AUTO_INCREMENT,
-  dht11_temperatura FLOAT,
-  dht11_humedad FLOAT,
-  fecha_hora_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  fecha_hora_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (id)
+CREATE TABLE records (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  oxygen FLOAT NOT NULL,
+  heart_rate FLOAT NOT NULL,
+  temperature FLOAT NOT NULL,
+  registration_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE status_oximetro (
-  id INT NOT NULL AUTO_INCREMENT,
-  status_oximetro INT,
-  fecha_hora_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  fecha_hora_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (id)
+CREATE TABLE lastest_records (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  lastest_record INT UNSIGNED NOT NULL,
+  penultimate_record INT UNSIGNED NOT NULL,
+  antepenultimate_record INT UNSIGNED NOT NULL
 );
 
-CREATE TABLE ultimo_registro (
-  id INT NOT NULL AUTO_INCREMENT,
-  ultimo_registro INT,
-  fecha_hora_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  fecha_hora_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (id)
+CREATE TABLE oximetro_status (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  oximetro_connection INT DEFAULT 0,
+  scan_status INT DEFAULT 0
 );
 
-INSERT INTO ultimo_registro (ultimo_registro) VALUES (0);
-UPDATE ultimo_registro SET ultimo_registro = 1 WHERE id = 0;
+-- Prubeas
+INSERT INTO oximetro_status (oximetro_connection, scan_status) VALUES (0, 0);
+UPDATE oximetro_status SET scan_status = 1 WHERE id = 1;
