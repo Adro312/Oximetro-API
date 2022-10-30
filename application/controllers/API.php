@@ -111,7 +111,7 @@ class API extends RestController {
     {
       // Obtiene el ultimo registro que se hizo
       $query_get = $this->db->query("SELECT id, oxygen, heart_rate, temperature, DATE(registration_date) AS 'Date', TIME(registration_date) AS 'Hour' FROM records ORDER BY id DESC LIMIT 1");
-      $data = $query_get->result();
+      $data = $query_get->row();
       $repsuesta = array(
         "status" => 1,
         "msg" => "OK",
