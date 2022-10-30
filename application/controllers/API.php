@@ -9,88 +9,209 @@ require APPPATH . '/libraries/Format.php';
 
 class API extends RestController {
 
-    function getStatus_get()
+    function getStatusApp_get()
     {
       // Obtenemos el estado del oximetro para saber si comienza a escanear o no
       $data = $this->db->where_in('id', 1);
-      $data = $this->db->get('status_oximetro');
-      $status = $data->row()->status_oximetro;
-      echo $status;
-    }
-
-    function changeStatus_get() 
-    {
-      $this->db->where('id', 1);
-      $resp = $this->db->update('status_oximetro', array('status_oximetro' => 1));
-      $msg = $resp ? "OK" : "ERROR"; 
-      $array = array(
-        "status" => $msg
+      $data = $this->db->get('oximetro_status');
+      $status = $data->row()->scan_status;
+      $repsuesta = array(
+        "status" => 1,
+        "msg" => "OK",
+        "oxi_status" => $status
       );
-      echo json_encode($array);
+      echo json_encode($repsuesta);
     }
 
-    function getRegister_get() 
+    function getStatusOxi_get()
     {
-      $query_id = $this->db->where_in('id', 1);
-      $query_id = $this->db->get('ultimo_registro');
-      $last_id = $query_id->row()->ultimo_registro;
+      // Obtenemos el estado del oximetro si esta conectado al mismo internet
+      $data = $this->db->where_in('id', 1);
+      $data = $this->db->get('oximetro_status');
+      $status = $data->row()->oximetro_connection;
+      $repsuesta = array(
+        "status" => 1,
+        "msg" => "OK",
+        "oxi_internet_status" => $status
+      );
+      echo json_encode($repsuesta);
+    }
 
-      $query_get = $this->db->where_in('id', $last_id);
-      $query_get = $this->db->get('registros');
-      $datos = $query_get->result();
+    function changeStatusApp_get() 
+    {
+      // Cambiamos el status para que comience a scanear
+      $this->db->where('id', 1);
+      $resp = $this->db->update('oximetro_status', array('scan_status' => 1));
+      if ($resp = 1) {
+        $status = 1; 
+        $msg = "Status Changed";
+      } else {
+        $status = 0; 
+        $msg = "ERROR";
+      }
+      $repsuesta = array(
+        "status" => $status,
+        "msg" => $msg
+      );
+      echo json_encode($repsuesta);
+    }
 
-      echo json_encode($datos);
+    function changeStatusOxi_get() 
+    {
+      // Cambiamos el status del oximetro para que la app sepa que ya esta conectada a internet
+      $this->db->where('id', 1);
+      $resp = $this->db->update('oximetro_status', array('oximetro_connection' => 1));
+      if ($resp = 1) {
+        $status = 1; 
+        $msg = "Status Changed";
+      } else {
+        $status = 0; 
+        $msg = "ERROR";
+      }
+      $repsuesta = array(
+        "status" => $status,
+        "msg" => $msg
+      );
+      echo json_encode($repsuesta);
+    }
+
+    function changeStatusOxiDesconect_get() 
+    {
+      // Cambiamos el status del oximetro para que la app sepa que ya NO esta conectada a internet
+      $this->db->where('id', 1);
+      $resp = $this->db->update('oximetro_status', array('oximetro_connection' => 0));
+      if ($resp = 1) {
+        $status = 1; 
+        $msg = "Status Changed";
+      } else {
+        $status = 0; 
+        $msg = "ERROR";
+      }
+      $repsuesta = array(
+        "status" => $status,
+        "msg" => $msg
+      );
+      echo json_encode($repsuesta);
+    }
+
+    function getLatestTwoRegister_get() 
+    {
+      // Obtenemoslos dos ultimos registros
+      $query_get = $this->db->query("SELECT id, oxygen, heart_rate, temperature, DATE(registration_date) AS 'Date', TIME(registration_date) AS 'Hour' FROM records ORDER BY id DESC LIMIT 2");
+      $data = $query_get->result();
+      $repsuesta = array(
+        "status" => 1,
+        "msg" => "OK",
+        "data" => $data
+      );
+      echo json_encode($repsuesta);
+    }
+
+    function getLatestRegister_get() 
+    {
+      // Obtiene el ultimo registro que se hizo
+      $query_get = $this->db->query("SELECT id, oxygen, heart_rate, temperature, DATE(registration_date) AS 'Date', TIME(registration_date) AS 'Hour' FROM records ORDER BY id DESC LIMIT 1");
+      $data = $query_get->result();
+      $repsuesta = array(
+        "status" => 1,
+        "msg" => "OK",
+        "data" => $data
+      );
+      echo json_encode($repsuesta);
     }
 
     function getAllData_get() 
     {
-      $data = $this->db->get('registros')->result();
-      echo json_encode($data);
+      // Se obtiene todos los datos registrados
+      $data = $this->db->query("SELECT id, oxygen, heart_rate, temperature, DATE(registration_date) AS 'Date', TIME(registration_date) AS 'Hour' FROM records");
+      $repsuesta = array(
+        "status" => 1,
+        "msg" => "OK",
+        "data" => $data->result()
+      );
+      echo json_encode($repsuesta);
+    }
+
+    function getDataByDate_post()
+    {
+      // Se obtiene todos los registros de un dia en especifico
+      $this->form_validation->set_data($this->post());
+      $date = $this->post("date");
+
+      // Checamos que si nos de una fecha
+      if($date != "") {
+        // Obtenemos los datos
+        $sql = "SELECT id, oxygen, heart_rate, temperature, DATE(registration_date) AS 'Date', TIME(registration_date) AS 'Hour' FROM records WHERE DATE(registration_date) = ?";
+        $data = $this->db->query($sql, array($date));
+        
+        if($data->row() != null){
+          // Si, si tiene registros de ese dia
+          $repsuesta = array(
+            "status" => 1,
+            "msg" => "OK",
+            "data" => $data->result()
+          );
+        } else {
+          // Si no tiene registros
+          $repsuesta = array(
+            "status" => 1,
+            "msg" => "Without Data"
+          );
+        }
+      } else {
+        // Si no envio una fecha
+        $repsuesta = array(
+          "status" => 0,
+          "msg" => "No se recibio ningun dato"
+        );
+      }
+
+      echo json_encode($repsuesta);
     }
 
     function saveData_post()
     {
       // Obtenemos datos de los sensores
       $this->form_validation->set_data($this->post());
-      $h = $this->post("humedad");
-      $t = $this->post("temperatura");
+      $oxi = $this->post("oxygen");
+      $hr = $this->post("heart_rate");
+      $temp = $this->post("temperature");
 
       // Verificamos que si este recibiendo datos
-      if ( $h != "" && $t != "" ) {
+      if ( $oxi != "" && $hr != "" && $temp != "" ) {
+
         // Estructuramos los datos para guardarlos
         $data = array(
-          'dht11_temperatura' => $t,
-          'dht11_humedad' => $h
+          'oxygen' => $oxi,
+          'heart_rate' => $hr,
+          'temperature' => $temp
         );
 
         // Insertamos los datos en la tabla
-        $registro = $this->db->insert("registros", $data);
+        $registro = $this->db->insert("records", $data);
 
-        // Actualizamos el ultimo Id registrado
-        $last_id = $this->db->insert_id();
-        $this->db->where('id', 1);
-        $this->db->update('ultimo_registro', array('ultimo_registro' => $last_id));
+        // Cambiamos el status para que el oximetro se detenga de registar
+        $this->db->update('oximetro_status', array('scan_status' => 1));
 
-        // Cambiamos el estado del oximetro para que ya no registre mas datos
-        $this->db->where('id', 1);
-        $this->db->update('status_oximetro', array('status_oximetro' => 0));
       } else{
         $registro = false;
       }
 
       if ($registro) {
+        // Si el query se ejecuto sin problemas
         $repsuesta = array(
           "status" => 1,
-          "msg" => "Se guardo correctamente!"
+          "msg" => "Saved!"
         );
-        echo json_encode($repsuesta);
       } else {
+        // Si no se puedo guardar
         $repsuesta = array(
           "status" => 0,
-          "msg" => "Error al guardar los datos"
+          "msg" => "ERROR"
         );
-        echo json_encode($repsuesta);
       }
+
+      echo json_encode($repsuesta);
     }
 
   }
