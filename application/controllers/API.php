@@ -13,15 +13,15 @@ class API extends RestController {
     {
       // Obtenemos el estado del oximetro para saber si comienza a escanear o no
       $data = $this->db->where_in('id', 1);
-      $data = $this->db->get('status_oximetro');
-      $status = $data->row()->status_oximetro;
+      $data = $this->db->get('oximetro_status');
+      $status = $data->row()->scan_status;
       echo $status;
     }
 
     function changeStatus_get() 
     {
       $this->db->where('id', 1);
-      $resp = $this->db->update('status_oximetro', array('status_oximetro' => 1));
+      $resp = $this->db->update('oximetro_status', array('oximetro_status' => 1));
       $msg = $resp ? "OK" : "ERROR"; 
       $array = array(
         "status" => $msg
