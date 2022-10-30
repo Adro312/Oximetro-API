@@ -191,7 +191,7 @@ class API extends RestController {
         $registro = $this->db->insert("records", $data);
 
         // Cambiamos el status para que el oximetro se detenga de registar
-        $this->db->update('oximetro_status', array('scan_status' => 1));
+        $this->db->update('oximetro_status', array('scan_status' => 0));
 
       } else{
         $registro = false;
