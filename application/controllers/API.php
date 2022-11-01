@@ -15,12 +15,7 @@ class API extends RestController {
       $data = $this->db->where_in('id', 1);
       $data = $this->db->get('oximetro_status');
       $status = $data->row()->scan_status;
-      $repsuesta = array(
-        "status" => 1,
-        "msg" => "OK",
-        "oxi_status" => $status
-      );
-      echo json_encode($repsuesta);
+      echo ($status);
     }
 
     function getStatusOxi_get()
@@ -191,7 +186,7 @@ class API extends RestController {
         $registro = $this->db->insert("records", $data);
 
         // Cambiamos el status para que el oximetro se detenga de registar
-        $this->db->update('oximetro_status', array('scan_status' => 1));
+        $this->db->update('oximetro_status', array('scan_status' => 0));
 
       } else{
         $registro = false;

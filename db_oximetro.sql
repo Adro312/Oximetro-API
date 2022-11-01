@@ -37,6 +37,9 @@ INSERT INTO oximetro_status (oximetro_connection, scan_status) VALUES (0, 0);
 
 UPDATE oximetro_status SET scan_status = 0, oximetro_connection = 0 WHERE id = 1;
 
+UPDATE oximetro_status SET scan_status = 1 WHERE id = 1;
+UPDATE oximetro_status SET scan_status = 0 WHERE id = 1;
+
 SELECT id, oxygen, heart_rate, temperature, DATE(registration_date) AS 'Date', TIME(registration_date) AS 'Hour' FROM records;
 
 SELECT id, oxygen, heart_rate, temperature, DATE(registration_date) AS 'Date', TIME(registration_date) AS 'Hour' FROM records ORDER BY id DESC LIMIT 2;
