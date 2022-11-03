@@ -32,6 +32,20 @@ class API extends RestController {
       echo json_encode($repsuesta);
     }
 
+    function getStatusDataSend_get()
+    {
+      // Obtenemos el estado del oximetro si esta enviando la informacion
+      $data = $this->db->where_in('id', 1);
+      $data = $this->db->get('oximetro_status');
+      $status = $data->row()->data_send;
+      $repsuesta = array(
+        "status" => 1,
+        "msg" => "OK",
+        "data_send_status" => $status
+      );
+      echo json_encode($repsuesta);
+    }
+
     function changeStatusApp_get() 
     {
       // Cambiamos el status para que comience a scanear
@@ -56,6 +70,44 @@ class API extends RestController {
       // Cambiamos el status del oximetro para que la app sepa que ya esta conectada a internet
       $this->db->where('id', 1);
       $resp = $this->db->update('oximetro_status', array('oximetro_connection' => 1));
+      if ($resp = 1) {
+        $status = 1; 
+        $msg = "Status Changed";
+      } else {
+        $status = 0; 
+        $msg = "ERROR";
+      }
+      $repsuesta = array(
+        "status" => $status,
+        "msg" => $msg
+      );
+      echo json_encode($repsuesta);
+    }
+
+    function changeStatusDataSend_get() 
+    {
+      // Cambiamos el status del oximetro para que la app sepa que ya se envio la informacion
+      $this->db->where('id', 1);
+      $resp = $this->db->update('oximetro_status', array('data_send' => 1));
+      if ($resp = 1) {
+        $status = 1; 
+        $msg = "Status Changed";
+      } else {
+        $status = 0; 
+        $msg = "ERROR";
+      }
+      $repsuesta = array(
+        "status" => $status,
+        "msg" => $msg
+      );
+      echo json_encode($repsuesta);
+    }
+
+    function changeStatusDataSendTo0_get() 
+    {
+      // Cambiamos el status del oximetro para que la app sepa que ya esta en 0 para nuevos regsitros
+      $this->db->where('id', 1);
+      $resp = $this->db->update('oximetro_status', array('data_send' => 0));
       if ($resp = 1) {
         $status = 1; 
         $msg = "Status Changed";

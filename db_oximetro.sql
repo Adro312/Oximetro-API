@@ -26,7 +26,8 @@ INSERT INTO records VALUES
 CREATE TABLE oximetro_status (
   id INT PRIMARY KEY AUTO_INCREMENT,
   oximetro_connection INT DEFAULT 0,
-  scan_status INT DEFAULT 0
+  scan_status INT DEFAULT 0,
+  data_send INT DEFAULT 0
 );
 
 INSERT INTO oximetro_status (oximetro_connection, scan_status) VALUES (0, 0);
@@ -35,7 +36,10 @@ INSERT INTO oximetro_status (oximetro_connection, scan_status) VALUES (0, 0);
 -------------- TESTS -----------------
 --------------------------------------
 
-UPDATE oximetro_status SET scan_status = 0, oximetro_connection = 0 WHERE id = 1;
+UPDATE oximetro_status SET scan_status = 0, oximetro_connection = 0, data_send = 0 WHERE id = 1;
+
+UPDATE oximetro_status SET oximetro_connection = 1 WHERE id = 1;
+UPDATE oximetro_status SET oximetro_connection = 0 WHERE id = 1;
 
 UPDATE oximetro_status SET scan_status = 1 WHERE id = 1;
 UPDATE oximetro_status SET scan_status = 0 WHERE id = 1;
