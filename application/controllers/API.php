@@ -38,12 +38,7 @@ class API extends RestController {
       $data = $this->db->where_in('id', 1);
       $data = $this->db->get('oximetro_status');
       $status = $data->row()->data_send;
-      $repsuesta = array(
-        "status" => 1,
-        "msg" => "OK",
-        "data_send_status" => $status
-      );
-      echo json_encode($repsuesta);
+      echo ($status);
     }
 
     function changeStatusApp_get() 
